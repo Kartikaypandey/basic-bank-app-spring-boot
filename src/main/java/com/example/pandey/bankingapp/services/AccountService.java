@@ -1,6 +1,7 @@
 package com.example.pandey.bankingapp.services;
 
 import com.example.pandey.bankingapp.dto.AccountDto;
+import com.example.pandey.bankingapp.dto.TransferDto;
 
 import java.util.List;
 
@@ -13,6 +14,8 @@ public interface AccountService {
 
     AccountDto depositAmount(Long id , double amount);
     AccountDto withdrawAmount(Long id , double amount);
+    void transferFunds(TransferDto transferDto);
+
 
 
 }

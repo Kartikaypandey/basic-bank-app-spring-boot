@@ -1,6 +1,7 @@
 package com.example.pandey.bankingapp.controller;
 
 import com.example.pandey.bankingapp.dto.AccountDto;
+import com.example.pandey.bankingapp.dto.TransferDto;
 import com.example.pandey.bankingapp.entity.Account;
 import com.example.pandey.bankingapp.services.AccountService;
 import org.springframework.http.HttpStatus;
@@ -50,5 +51,11 @@ public class AccountController {
     public String deleteAccount(@PathVariable Long id){
         AccountDto accountDto = accountService.deleteAccount(id);
         return "Account Deleted for user :"+accountDto.userName();
+    }
+
+    @PostMapping("/transfer")
+    public String transferMoney(@RequestBody TransferDto transferDto){
+        accountService.transferFunds(transferDto);
+        return "Transfer Done successfully";
     }
 }

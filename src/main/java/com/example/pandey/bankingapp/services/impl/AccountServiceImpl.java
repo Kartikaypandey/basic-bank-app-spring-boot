@@ -1,12 +1,14 @@
 package com.example.pandey.bankingapp.services.impl;
 
 import com.example.pandey.bankingapp.dto.AccountDto;
+import com.example.pandey.bankingapp.dto.TransferDto;
 import com.example.pandey.bankingapp.entity.Account;
 import com.example.pandey.bankingapp.exception.AccountException;
 import com.example.pandey.bankingapp.mapper.AccountMapper;
 import com.example.pandey.bankingapp.repository.AccountRepository;
 import com.example.pandey.bankingapp.services.AccountService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,5 +72,23 @@ public class AccountServiceImpl implements AccountService {
         Account savedAccount = accountRepository.save(account);
 
         return AccountMapper.mapToAccountDto(savedAccount);
+    }
+
+    @Override
+    @Transactional
+    public void transferFunds(TransferDto transferDto) {
+        Account toAccount = accountRepository
+                .findById(transferDto.toAccountId())
+                .orElseThrow(()-> new AccountException("Account does not exist"));
+        Account fromAccount = accountRepository
+                .findById(transferDto.fromAccountId())
+                .orElseThrow(()-> new AccountException("Account does not exist"));
+
+        toAccount.setBalance(toAccount.getBalance() + transferDto.amount());
+        fromAccount.setBalance(fromAccount.getBalance() - transferDto.amount());
+
+        accountRepository.save(toAccount);
+        accountRepository.save(fromAccount);
+
     }
 }
