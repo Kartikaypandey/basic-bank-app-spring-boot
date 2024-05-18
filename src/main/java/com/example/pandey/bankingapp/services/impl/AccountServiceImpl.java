@@ -39,6 +39,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public AccountDto deleteAccount(Long id) {
+        Account account = accountRepository.findById(id).orElseThrow(()-> new RuntimeException("Account does not exist"));
+        accountRepository.deleteById(id);
+        return AccountMapper.mapToAccountDto(account);
+    }
+
+    @Override
     public AccountDto depositAmount(Long id, double amount) {
 
         Account account =  accountRepository.findById(id).orElseThrow(()-> new RuntimeException("Account does not exist"));

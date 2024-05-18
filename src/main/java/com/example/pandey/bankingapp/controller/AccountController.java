@@ -45,4 +45,10 @@ public class AccountController {
     public ResponseEntity<AccountDto> withdrawAmount(@PathVariable Long id , @RequestBody Map<String, Double> request){
         return new ResponseEntity<>(accountService.withdrawAmount(id,request.get("amount")),HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public String deleteAccount(@PathVariable Long id){
+        AccountDto accountDto = accountService.deleteAccount(id);
+        return "Account Deleted for user :"+accountDto.getUserName();
+    }
 }
