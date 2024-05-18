@@ -2,6 +2,7 @@ package com.example.pandey.bankingapp.services.impl;
 
 import com.example.pandey.bankingapp.dto.AccountDto;
 import com.example.pandey.bankingapp.entity.Account;
+import com.example.pandey.bankingapp.exception.AccountException;
 import com.example.pandey.bankingapp.mapper.AccountMapper;
 import com.example.pandey.bankingapp.repository.AccountRepository;
 import com.example.pandey.bankingapp.services.AccountService;
@@ -34,13 +35,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto getSingleAccount(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(()-> new RuntimeException("Account does not exist"));
+        Account account = accountRepository.findById(id).orElseThrow(()-> new AccountException("Account does not exist"));
         return AccountMapper.mapToAccountDto(account);
     }
 
     @Override
     public AccountDto deleteAccount(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(()-> new RuntimeException("Account does not exist"));
+        Account account = accountRepository.findById(id).orElseThrow(()-> new AccountException("Account does not exist"));
         accountRepository.deleteById(id);
         return AccountMapper.mapToAccountDto(account);
     }
@@ -48,7 +49,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto depositAmount(Long id, double amount) {
 
-        Account account =  accountRepository.findById(id).orElseThrow(()-> new RuntimeException("Account does not exist"));
+        Account account =  accountRepository.findById(id).orElseThrow(()-> new AccountException("Account does not exist"));
         double newAmount = account.getBalance() + amount;
         account.setBalance(newAmount);
 
@@ -58,11 +59,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto withdrawAmount(Long id, double amount) {
-        Account account = accountRepository.findById(id).orElseThrow(()-> new RuntimeException("Account does not exist"));
+        Account account = accountRepository.findById(id).orElseThrow(()-> new AccountException("Account does not exist"));
 
         double newBalance = account.getBalance() - amount;
         if(newBalance<0){
-            throw new  RuntimeException("Insufficient amount");
+            throw new AccountException("Insufficient amount");
         }
         account.setBalance(newBalance);
 

@@ -49,6 +49,6 @@ public class AccountController {
     @DeleteMapping("/{id}")
     public String deleteAccount(@PathVariable Long id){
         AccountDto accountDto = accountService.deleteAccount(id);
-        return "Account Deleted for user :"+accountDto.getUserName();
+        return "Account Deleted for user :"+accountDto.userName();
     }
 }
