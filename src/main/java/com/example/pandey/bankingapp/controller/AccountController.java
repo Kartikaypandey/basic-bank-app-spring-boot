@@ -28,4 +28,9 @@ public class AccountController {
     public ResponseEntity<List<AccountDto>> getAllAccounts(){
         return new ResponseEntity<>(accountService.getAllAccounts(),HttpStatus.OK);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountDto> getSingleAccount(@PathVariable Long id){
+        return new ResponseEntity<>(accountService.getSingleAccount(id),HttpStatus.OK);
+    }
 }
