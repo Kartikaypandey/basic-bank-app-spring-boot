@@ -3,13 +3,16 @@ package com.example.pandey.bankingapp.services.impl;
 import com.example.pandey.bankingapp.dto.AccountDto;
 import com.example.pandey.bankingapp.dto.TransferDto;
 import com.example.pandey.bankingapp.entity.Account;
+import com.example.pandey.bankingapp.entity.Transaction;
 import com.example.pandey.bankingapp.exception.AccountException;
 import com.example.pandey.bankingapp.mapper.AccountMapper;
 import com.example.pandey.bankingapp.repository.AccountRepository;
+import com.example.pandey.bankingapp.repository.TransactionRepository;
 import com.example.pandey.bankingapp.services.AccountService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,9 +20,11 @@ import java.util.stream.Collectors;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
-    public AccountServiceImpl(AccountRepository accountRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -56,6 +61,10 @@ public class AccountServiceImpl implements AccountService {
         account.setBalance(newAmount);
 
         Account savedAccount = accountRepository.save(account);
+
+        Transaction transaction = getTransaction(id,amount,"CREDIT");
+        transactionRepository.save(transaction);
+
         return AccountMapper.mapToAccountDto(savedAccount);
     }
 
@@ -64,12 +73,15 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id).orElseThrow(()-> new AccountException("Account does not exist"));
 
         double newBalance = account.getBalance() - amount;
-        if(newBalance<0){
+        if(newBalance < 0){
             throw new AccountException("Insufficient amount");
         }
         account.setBalance(newBalance);
 
         Account savedAccount = accountRepository.save(account);
+
+        Transaction transaction = getTransaction(id,amount,"DEBIT");
+        transactionRepository.save(transaction);
 
         return AccountMapper.mapToAccountDto(savedAccount);
     }
@@ -83,12 +95,30 @@ public class AccountServiceImpl implements AccountService {
         Account fromAccount = accountRepository
                 .findById(transferDto.fromAccountId())
                 .orElseThrow(()-> new AccountException("Account does not exist"));
+        Double deductedAmount = fromAccount.getBalance() - transferDto.amount();
+
+        if(deductedAmount < 0){
+            throw new AccountException("Insufficient amount");
+        }
 
         toAccount.setBalance(toAccount.getBalance() + transferDto.amount());
         fromAccount.setBalance(fromAccount.getBalance() - transferDto.amount());
+        Transaction transactionOne = getTransaction(transferDto.toAccountId(),transferDto.amount(),"CREDIT");
+        Transaction transactionTwo = getTransaction(transferDto.fromAccountId(),transferDto.amount(),"DEBIT");
 
+        transactionRepository.save(transactionOne);
+        transactionRepository.save(transactionTwo);
         accountRepository.save(toAccount);
         accountRepository.save(fromAccount);
 
+    }
+
+    public Transaction getTransaction(Long accountId, Double amount , String transactionType){
+        Transaction transaction = new Transaction();
+        transaction.setAccountId(accountId);
+        transaction.setAmount(amount);
+        transaction.setTransactionType(transactionType);
+        transaction.setTimeStamp(LocalDateTime.now());
+        return transaction;
     }
 }

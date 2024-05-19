@@ -1,9 +1,11 @@
 package com.example.pandey.bankingapp.controller;
 
 import com.example.pandey.bankingapp.dto.AccountDto;
+import com.example.pandey.bankingapp.dto.TransactionDto;
 import com.example.pandey.bankingapp.dto.TransferDto;
 import com.example.pandey.bankingapp.entity.Account;
 import com.example.pandey.bankingapp.services.AccountService;
+import com.example.pandey.bankingapp.services.TransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +19,11 @@ public class AccountController {
 
     private AccountService accountService;
 
-    public AccountController(AccountService accountService) {
+    private TransactionService transactionService;
+
+    public AccountController(AccountService accountService, TransactionService transactionService) {
         this.accountService = accountService;
+        this.transactionService = transactionService;
     }
 
     @PostMapping()
@@ -57,5 +62,11 @@ public class AccountController {
     public String transferMoney(@RequestBody TransferDto transferDto){
         accountService.transferFunds(transferDto);
         return "Transfer Done successfully";
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<TransactionDto>> getTransactionHistory(@PathVariable("id") Long accountId){
+        return new ResponseEntity<>(transactionService.getAllTransactionForGivenId(accountId),HttpStatus.OK);
+
     }
 }

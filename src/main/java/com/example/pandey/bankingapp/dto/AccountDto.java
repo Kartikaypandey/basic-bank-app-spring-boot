@@ -12,6 +12,4 @@ import lombok.Data;
 //}
 
 
-public record AccountDto(Long id , String userName , Double balance) {
-
-}
+public record AccountDto(Long id , String userName , Double balance) { }
